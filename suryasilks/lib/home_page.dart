@@ -8,33 +8,39 @@ import 'screens/combo_screen.dart';
 import 'screens/profile_screen.dart';
 
 class HomePage extends StatelessWidget {
-  HomePage({super.key});
+  HomePage({super.key, required this.id, required this.token});
+  final String id;
+  final String token;
+
   final BottomNavController bottomNavController =
       Get.put(BottomNavController());
 
-  final List<Widget> _pages = [
-    HomeScreen(),
-    CategoriesScreen(),
-    ComboScreen(),
-    ProfileScreen(),
-  ];
+  List<Widget> _pages() {
+    return [
+      HomeScreen(
+        id: id,
+        token: token,
+      ),
+      CategoriesScreen(),
+      ComboScreen(),
+      ProfileScreen(),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Obx(() {
-        return _pages[bottomNavController.selectedIndex.value];
+        return _pages()[bottomNavController.selectedIndex.value];
       }),
       bottomNavigationBar: Obx(() {
         return BottomNavigationBar(
           currentIndex: bottomNavController.selectedIndex.value,
           onTap: bottomNavController.changeTabIndex,
-          selectedItemColor: kActiveColor, // Set the active icon color
-          unselectedItemColor: kIconColor, // Set the unselected icon color
-          showUnselectedLabels:
-              true, // Ensure labels are shown for unselected items
-          type: BottomNavigationBarType
-              .fixed, // Ensures labels and icons are under each other
+          selectedItemColor: kActiveColor,
+          unselectedItemColor: kIconColor,
+          showUnselectedLabels: true,
+          type: BottomNavigationBarType.fixed,
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
@@ -59,8 +65,8 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class Appbar extends StatelessWidget {
-  const Appbar({
+class CustomAppbar extends StatelessWidget {
+  const CustomAppbar({
     super.key,
     required this.title,
   });
@@ -74,21 +80,15 @@ class Appbar extends StatelessWidget {
       actions: [
         IconButton(
           icon: const Icon(Icons.search),
-          onPressed: () {
-            // Handle search action
-          },
+          onPressed: () {},
         ),
         IconButton(
           icon: const Icon(Icons.shopping_cart),
-          onPressed: () {
-            // Handle cart action
-          },
+          onPressed: () {},
         ),
         IconButton(
-          icon: const Icon(Icons.shopping_cart),
-          onPressed: () {
-            // Handle cart action
-          },
+          icon: const Icon(Icons.offline_bolt),
+          onPressed: () {},
         ),
       ],
     );

@@ -1,0 +1,13 @@
+// class LoginModel {
+//   final bool success;
+//   final String message;
+
+//   LoginModel({required this.success, required this.message});
+
+//   factory LoginModel.fromJson(Map<String, dynamic> json) {
+//     return LoginModel(
+//       success: json['success'] == 1,
+//       message: json['message'],
+//     );
+//   }
+// }

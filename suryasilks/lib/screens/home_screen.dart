@@ -3,29 +3,54 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:suryasilks/constants/colors.dart';
-import '../api/banner_api.dart';
-import '../controller/carousel_controller.dart';
+
+import '../api/homepage_api.dart';
+import '../controller/homepage_controller.dart';
 import '../models/banner_model.dart';
-import '../widgets/proiduct_card.dart'; // Fix typo in import statement
+import '../widgets/proiduct_card.dart';
 
 class HomeScreen extends StatelessWidget {
-  final CustomCarouselController carouselController =
-      Get.put(CustomCarouselController());
-  final BannerController bannerController =
-      Get.put(BannerController(BannerService()));
+  final String id;
+  final String token;
 
-  final List<String> imgList = [
-    'assets/icons/image.png',
-    'assets/icons/image.png',
-    'assets/icons/image.png',
-  ];
+  final HomepageController homepageController =
+      Get.put(HomepageController(HomepageApiService()));
+
+  HomeScreen({required this.id, required this.token});
 
   @override
   Widget build(BuildContext context) {
+    homepageController.fetchedData(id, token);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('E-Commerce App'),
-        centerTitle: true,
+        backgroundColor: kActiveColorlight,
+        title: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/surya.png'),
+              fit: BoxFit.cover,
+            ),
+          ),
+          width: 80,
+          height: 40,
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            onPressed: () {
+              // Handle cart action
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -33,46 +58,30 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             children: [
               Obx(() {
-                if (bannerController.banners.isEmpty) {
+                if (homepageController.banners.isEmpty) {
                   return Center(child: CircularProgressIndicator());
                 }
                 return CarouselSlider(
                   options: CarouselOptions(
                     height: 200.0,
+                    viewportFraction: 1,
                     autoPlay: true,
                     enlargeCenterPage: true,
                     onPageChanged: (index, reason) {
-                      bannerController.updateCarouselIndex(index);
+                      homepageController.updateCarouselIndex(index);
                     },
                   ),
-                  items: bannerController.banners.map((BannerModel banner) {
+                  items: homepageController.banners.map((BannerModel banner) {
                     return Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: 200,
                       margin: const EdgeInsets.symmetric(horizontal: 5.0),
                       decoration: BoxDecoration(
-                        // image: DecorationImage(
-                        //   image: NetworkImage(banner
-                        //       .image), // Use NetworkImage for remote images
-                        //   fit: BoxFit.cover,
-                        // ),
+                        image: DecorationImage(
+                          image: NetworkImage(banner.image),
+                          fit: BoxFit.fill,
+                        ),
                         borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            banner.title,
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          if (banner.subTitle.isNotEmpty)
-                            Text(
-                              banner.subTitle,
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                        ],
                       ),
                     );
                   }).toList(),
@@ -82,31 +91,48 @@ class HomeScreen extends StatelessWidget {
               Obx(() {
                 return SmoothPageIndicator(
                   controller: PageController(
-                      initialPage: carouselController.activeIndex.value),
-                  count: imgList.length,
+                      initialPage: homepageController.activeIndex.value),
+                  count: homepageController.banners.length,
                   effect: const ExpandingDotsEffect(
                     dotHeight: 8.0,
                     dotWidth: 8.0,
                     spacing: 4.0,
-                    activeDotColor:
-                        Colors.red, // Change to your active dot color
+                    activeDotColor: Colors.red,
                   ),
                   onDotClicked: (index) =>
-                      bannerController.updateCarouselIndex(index),
+                      homepageController.updateCarouselIndex(index),
                 );
               }),
               const SizedBox(height: 10),
 
               // Sections
-              _buildCategoryGrid(['Mens', 'Womens', 'Kids']),
+              _buildCategoryGrid([
+                {'name': 'Mens', 'imagePath': 'assets/images/men.png'},
+                {'name': 'Womens', 'imagePath': 'assets/images/women.png'},
+                {'name': 'Kids', 'imagePath': 'assets/images/kids.png'},
+              ]),
               _buildSectionTitle('September Hot Picks'),
-              ProductGrid(), // Add first product grid
+              ProductGrid(
+                  products: homepageController.ourProducts
+                      .map((product) => product.toMap())
+                      .toList()),
               _buildSectionTitle('Festival Collections'),
-              ProductGrid(), // Add second product grid
+              ProductGrid(
+                  products: homepageController.recentViews
+                      .map((product) => product.toMap())
+                      .toList()),
               _buildSectionTitle('Trending Categories - Women'),
-              _buildCategoryGrid(['Saree', 'Kurti', 'Shirt']),
+              _buildCategoryGrid([
+                {'name': 'Mens', 'imagePath': 'assets/images/men.png'},
+                {'name': 'Womens', 'imagePath': 'assets/images/women.png'},
+                {'name': 'Kids', 'imagePath': 'assets/images/kids.png'},
+              ]),
               _buildSectionTitle('Trending Categories - Men'),
-              _buildCategoryGrid(['Shirt', 'T-Shirt', 'Jeans']),
+              _buildCategoryGrid([
+                {'name': 'Mens', 'imagePath': 'assets/images/men.png'},
+                {'name': 'Womens', 'imagePath': 'assets/images/women.png'},
+                {'name': 'Kids', 'imagePath': 'assets/images/kids.png'},
+              ]),
               const SizedBox(height: 10),
             ],
           ),
@@ -133,7 +159,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryGrid(List<String> categories) {
+  Widget _buildCategoryGrid(List<Map<String, String>> categories) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -146,18 +172,16 @@ class HomeScreen extends StatelessWidget {
         return Card(
           margin: const EdgeInsets.all(8.0),
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(12.0), // Adjust the border radius
+            borderRadius: BorderRadius.circular(12.0),
           ),
           child: Stack(
             children: [
               ClipRRect(
-                borderRadius:
-                    BorderRadius.circular(12.0), // Same as card's border radius
+                borderRadius: BorderRadius.circular(12.0),
                 child: Image.asset(
-                  "assets/icons/image.png", // Use your category images
-                  fit: BoxFit.fitWidth,
-                  height: 100,
+                  categories[index]['imagePath'] ?? 'assets/icons/default.png',
+                  fit: BoxFit.cover,
+                  height: 130,
                   width: double.infinity,
                 ),
               ),
@@ -166,15 +190,22 @@ class HomeScreen extends StatelessWidget {
                 child: Container(
                   height: 30,
                   decoration: BoxDecoration(
-                    color: kActiveColor,
-                    borderRadius: BorderRadius.only(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color.fromARGB(135, 0, 0, 0),
+                        Color(0x66666680),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(12.0),
                       bottomRight: Radius.circular(12.0),
                     ),
                   ),
                   child: Center(
                     child: Text(
-                      categories[index],
+                      categories[index]['name'] ?? 'Unknown',
                       style: const TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
 
-// Sample product data
-
 class ProductCard extends StatelessWidget {
-  final String imageUrl; // URL for the product image
-  final String title; // Title of the product
-  final String price; // Price of the product
-  final String originalPrice; // Original price before discount
-  final String discount; // Discount information
+  final String imageUrl;
+  final String title;
+  final String price;
+  final String originalPrice;
+  final String discount;
 
   const ProductCard({
     Key? key,
@@ -29,28 +27,41 @@ class ProductCard extends StatelessWidget {
           Card(
             margin: const EdgeInsets.all(8.0),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12.0), // Card border radius
+              borderRadius: BorderRadius.circular(12.0),
             ),
             child: Stack(
               children: [
                 ClipRRect(
-                  borderRadius:
-                      BorderRadius.circular(12.0), // Image border radius
-                  child: Image.asset(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                    width: 150,
-                    height: 130,
-                  ),
+                  borderRadius: BorderRadius.circular(12.0),
+                  child: imageUrl.isNotEmpty
+                      ? Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          width: 150,
+                          height: 130,
+                          errorBuilder: (BuildContext context, Object error,
+                              StackTrace? stackTrace) {
+                            return Container(
+                              width: 150,
+                              height: 130,
+                              color: Colors.grey,
+                              child: Center(child: Text('No Image')),
+                            );
+                          },
+                        )
+                      : Container(
+                          width: 150,
+                          height: 130,
+                          color: Colors.grey,
+                          child: Center(child: Text('No Image')),
+                        ),
                 ),
                 Positioned(
                   top: 10,
                   right: 10,
                   child: IconButton(
                     icon: Icon(Icons.favorite_border, color: Colors.white),
-                    onPressed: () {
-                      // Handle favorite action
-                    },
+                    onPressed: () {},
                   ),
                 ),
               ],
@@ -114,46 +125,19 @@ class ProductCard extends StatelessWidget {
 }
 
 class ProductGrid extends StatelessWidget {
-  final List<Map<String, String>> products = [
-    {
-      'imageUrl': 'assets/icons/image.png', // Replace with actual image paths
-      'title': "Men's Graphic Oversized T-Shirt",
-      'price': '₹400',
-      'originalPrice': '₹900',
-      'discount': '56% off',
-    },
-    {
-      'imageUrl': 'assets/icons/image.png', // Replace with actual image paths
-      'title': 'Birthday Dress',
-      'price': '₹400',
-      'originalPrice': '₹900',
-      'discount': '56% off',
-    },
-    {
-      'imageUrl': 'assets/icons/image.png', // Replace with actual image paths
-      'title': "Men's Graphic Oversized T-Shirt",
-      'price': '₹400',
-      'originalPrice': '₹900',
-      'discount': '56% off',
-    },
-    {
-      'imageUrl': 'assets/icons/image.png', // Replace with actual image paths
-      'title': 'Birthday Dress',
-      'price': '₹400',
-      'originalPrice': '₹900',
-      'discount': '56% off',
-    },
-    // Add more products as needed
-  ];
+  final List<Map<String, String>> products;
+  ProductGrid({
+    Key? key,
+    required this.products,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    print(products.length);
     return Container(
-      height: 200, // Set a height that accommodates the items comfortably
+      height: 200,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount:
-            products.length, // Use the actual length of the products list
+        itemCount: products.length,
         itemBuilder: (context, index) {
           final product = products[index];
 
@@ -162,13 +146,10 @@ class ProductGrid extends StatelessWidget {
             title: product['title']!,
             price: product['price']!,
             originalPrice: product['originalPrice']!,
-            discount: product['discount']!,
+            discount: "10% off",
           );
         },
       ),
     );
   }
 }
-
-// Usage in your widget tree
-// Place the ProductGrid widget inside a parent widget where you want to display it
